@@ -1,0 +1,5 @@
+setup.py
+cellcontainer.egg-info/PKG-INFO
+cellcontainer.egg-info/SOURCES.txt
+cellcontainer.egg-info/dependency_links.txt
+cellcontainer.egg-info/top_level.txt

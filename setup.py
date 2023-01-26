@@ -2,7 +2,7 @@ import setuptools
 
 
 setuptools.setup(
-    name='cell-container',
+    name='cellcontainer',
     author='Kevin Sit',
     author_email='sit@berkeley.edu',
     description='Simple wrapper for dealing with calcium imaging data',
