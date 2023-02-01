@@ -61,12 +61,10 @@ class Cell:
         return df
 
     def calculate_response_window(self):
-        # get the time average here, then collapse into 1 x trials
-        # then concatenate with labels into a dataframe, then you can use that stuff
         baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
         response_idx = (self.time > self.response_win[2]) & (self.time < self.response_win[3])
-        base = np.mean(self.neural_data[:, baseline_idx], axis=1)
-        resp = np.mean(self.neural_data[:, response_idx], axis=1)
+        base = self.neural_data[:, baseline_idx].mean(axis=1)
+        resp = self.neural_data[:, response_idx].mean(axis=1)
         return resp, base
 
     def average_over(self, select):
@@ -76,12 +74,20 @@ class Cell:
         df = self.labels[select].copy()
         resp, base = self.calculate_response_window()
         df['data'] = resp - base
-        m = df.groupby([*select]).mean(numeric_only=True).reset_index()
-        e = df.groupby([*select]).sem(numeric_only=True).reset_index()
+        m = (df.groupby([*select])
+            .mean(numeric_only=True)
+            .reset_index())
+        e = (df.groupby([*select])
+            .sem(numeric_only=True)
+            .reset_index())
         m['error'] = e['data'] # mapping should be preserved
         return m
 
     # Getters and Setters
+    def get_data_longform(self):
+        out = pd.DataFrame(self.neural_data).melt()
+        return
+
     @property
     def n_trials(self):
         return self.neural_data.shape[0]
