@@ -1,37 +1,8 @@
 import pandas as pd
-from pathlib import Path
-import pickle
 import numpy as np
-import itertools
-from holofun.s2p import Suite2pData
 import copy
 
-def save_cells(cell, paths, fn='cells.pickle'):
-    save_path = Path(paths['s2p']).parent
-
-    with open(Path(save_path, fn), 'wb') as file:
-        pickle.dump(cell, file)
-    print(f"Successfully saved cells at: {Path(save_path, fn)}")
-
-def load_cells(paths, fn='cells.pickle'):
-    load_path = Path(paths['s2p']).parent
-    with open(Path(load_path, fn), 'rb') as file:
-        cells = pickle.load(file)
-    print(f"Successfull loaded cells from {Path(load_path, fn)}")
-    return cells
-
-def create_cells(s2p:Suite2pData):
-    stat = s2p.get_stat_iscell()
-    # data = np.transpose(data, (1, 0 ,2)) # put cells first
-    cells = list()
-    for ii in range(len(stat)):
-        cells.append(Cell(stat[ii]))
-    return cells
-
-def add_dataset(cells, epoch, data, response_win, framerate):
-    for idx, c in enumerate(cells):
-        c.create_dataset(epoch, np.squeeze(data[:, idx, :]), response_win, framerate)
-
+# shared methods 
 def _add(input, df):
     for k, v in input.items():
         if k in df.keys():
@@ -64,9 +35,6 @@ class Dataset:
             df.labels.drop(index=trials_to_drop, inplace=True)
         df.data.drop(index=trials_to_drop, inplace=True)
         return df
-
-    # def set_response_window(self, input):
-    #     self.response_win = input
 
     def calculate_response_window(self):
         baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])

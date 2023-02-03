@@ -1,8 +1,0 @@
-Metadata-Version: 2.1
-Name: cellcontainer
-Version: 0.0.0
-Summary: Simple wrapper for dealing with calcium imaging data
-Home-page: https://github.com/kevinksit/cell-container
-Author: Kevin Sit
-Author-email: sit@berkeley.edu
-License: MIT
