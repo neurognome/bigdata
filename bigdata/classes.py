@@ -19,7 +19,7 @@ def _check_inputs(input):
             input[k] = [v]
     return pd.DataFrame(input)
 
-class Dataset:
+class Recording:
     def __init__(self, data:np.ndarray, response_frames, framerate):
         self.time = np.arange(data.shape[1])/framerate
         self.data = pd.DataFrame(data)
@@ -48,7 +48,7 @@ class Dataset:
         if trim:
             input = input.iloc[range(self.n_trials), :]
         if input.shape[0] != self.n_trials:
-            raise IndexError(f"Labels do not have the right number of trials ({self.neural_data.shape[0]})") # trials
+            raise IndexError(f"Labels do not have the right number of trials ({self.data.shape[0]})") # trials
         self.labels = _add(input, self.labels)
 
     def average_over(self, select):
@@ -81,11 +81,11 @@ class Dataset:
 class Cell:
     def __init__(self, s2p_data:dict):
         self.s2p_data = s2p_data # this should be a dict, from s2p's stat.npy
-        self.datasets = dict() #pd.DataFrame()
+        self.recordings = dict() #pd.DataFrame()
         self.outputs = pd.DataFrame()
 
-    def create_dataset(self, epoch, data, response_win, framerate):
-        self.datasets[epoch] = Dataset(data, response_win, framerate)
+    def add_recording(self, epoch, data, response_win, framerate):
+        self.recordings[epoch] = Recording(data, response_win, framerate)
 
     def add_output(self, input):
         input = _check_inputs(input)

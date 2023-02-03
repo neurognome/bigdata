@@ -1,4 +1,8 @@
 setup.py
+bigdata/__init__.py
+bigdata/classes.py
+bigdata/io.py
+bigdata/multicell.py
 bigdata.egg-info/PKG-INFO
 bigdata.egg-info/SOURCES.txt
 bigdata.egg-info/dependency_links.txt
