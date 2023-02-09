@@ -20,3 +20,7 @@ def add_output(cells, output, output_name):
 
 def get_output(cells, output_name):
     return np.array([c.outputs[output_name].values[0] for c in cells])
+
+def get_trialwise_legacy(cells, epoch):
+    out = np.array([c.recordings[epoch].data.values for c in cells])
+    return np.transpose(out, (1, 0, 2))
