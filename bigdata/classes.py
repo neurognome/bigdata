@@ -8,7 +8,7 @@ def _add(input, df):
         if k in df.keys():
             df[k] = v
         else:
-            df = pd.concat([df, input], axis=1)
+            df = pd.concat([df, v], axis=1)
     return df
 
 def _check_inputs(input):
@@ -26,7 +26,7 @@ class Recording:
         self.labels = pd.DataFrame()
         self.response_win = np.array(response_frames)/framerate
 
-    def drop_trial(self, trials_to_drop):
+    def drop(self, trials_to_drop):
         df = self.copy()
         # used to drop trials, eg not useful ones etc
         if trials_to_drop.dtype is np.dtype('bool'):
@@ -34,6 +34,15 @@ class Recording:
         if not df.labels.empty: 
             df.labels.drop(index=trials_to_drop, inplace=True)
         df.data.drop(index=trials_to_drop, inplace=True)
+        return df
+    
+    def filter(self, trials_to_keep):
+        df = self.copy()
+        if trials_to_keep.dtype is np.dtype('bool'):
+            trials_to_keep = np.asarray(np.where(trials_to_keep)[0]) 
+        if not df.labels.empty:
+            df.labels.filter(index=trials_to_keep, inplace=True)
+        df.data.filter(index=trials_to_keep, inplace=True)
         return df
 
     def calculate_response_window(self):
