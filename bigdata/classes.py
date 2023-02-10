@@ -32,24 +32,21 @@ class Recording:
         if trials_to_drop.dtype is np.dtype('bool'):
             trials_to_drop = np.asarray(np.where(trials_to_drop)[0])
         if not df.labels.empty: 
-            df.labels.drop(index=trials_to_drop, inplace=True)
-        df.data.drop(index=trials_to_drop, inplace=True)
+            df.labels = df.labels.drop(index=trials_to_drop).reset_index()
+        df.data = df.data.drop(index=trials_to_drop).reset_index()
         return df
     
     def filter(self, trials_to_keep):
-        df = self.copy()
         if trials_to_keep.dtype is np.dtype('bool'):
-            trials_to_keep = np.asarray(np.where(trials_to_keep)[0]) 
-        if not df.labels.empty:
-            df.labels.filter(index=trials_to_keep, inplace=True)
-        df.data.filter(index=trials_to_keep, inplace=True)
-        return df
+            trials_to_keep = np.array(np.where(trials_to_keep)[0])
+        trials_to_drop = np.array([x for x in range(self.n_trials) if x not in trials_to_keep])
+        return self.drop(trials_to_drop)
 
     def calculate_response_window(self):
         baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
         response_idx = (self.time > self.response_win[2]) & (self.time < self.response_win[3])
-        base = self.data.loc[:, baseline_idx].mean(axis=1)
-        resp = self.data.loc[:, response_idx].mean(axis=1)
+        base = self.data.loc[:, np.where(baseline_idx)[0]].mean(axis=1) # hacky fix in case the response win is betwene frames, and you end up with 1 less than the proper size
+        resp = self.data.loc[:, np.where(response_idx)[0]].mean(axis=1)
         return resp, base
 
     def add_label(self, input, trim=False):
