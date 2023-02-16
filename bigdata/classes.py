@@ -22,6 +22,7 @@ def _check_inputs(input):
 class Recording:
     def __init__(self, data:np.ndarray, response_frames, framerate):
         self.time = np.arange(data.shape[1])/framerate
+        self.framerate = framerate;
         self.data = pd.DataFrame(data)
         self.labels = pd.DataFrame()
         self.response_win = np.array(response_frames)/framerate
@@ -75,6 +76,10 @@ class Recording:
 
     def copy(self):
         return copy.deepcopy(self)
+
+    @property
+    def response_frames(self):
+        return (self.response_win * self.framerate).astype(int) 
 
     @property
     def n_trials(self):
