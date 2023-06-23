@@ -33,8 +33,8 @@ class Recording:
         if trials_to_drop.dtype is np.dtype('bool'):
             trials_to_drop = np.asarray(np.where(trials_to_drop)[0])
         if not df.labels.empty: 
-            df.labels = df.labels.drop(index=trials_to_drop).reset_index()
-        df.data = df.data.drop(index=trials_to_drop).reset_index()
+            df.labels = df.labels.drop(index=trials_to_drop).reset_index(drop=True)
+        df.data = df.data.drop(index=trials_to_drop).reset_index(drop=True)
         return df
     
     def filter(self, trials_to_keep):
@@ -46,8 +46,8 @@ class Recording:
     def calculate_response_window(self):
         baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
         response_idx = (self.time > self.response_win[2]) & (self.time < self.response_win[3])
-        base = self.data.loc[:, np.where(baseline_idx)[0]].mean(axis=1) # hacky fix in case the response win is betwene frames, and you end up with 1 less than the proper size
-        resp = self.data.loc[:, np.where(response_idx)[0]].mean(axis=1)
+        base = np.nanmean(self.data.loc[:, np.where(baseline_idx)[0]], axis=1) # hacky fix in case the response win is betwene frames, and you end up with 1 less than the proper size
+        resp = np.nanmean(self.data.loc[:, np.where(response_idx)[0]], axis=1)
         return resp, base
 
     def add_label(self, input, trim=False):
