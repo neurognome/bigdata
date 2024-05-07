@@ -43,9 +43,13 @@ class Recording:
         trials_to_drop = np.array([x for x in range(self.n_trials) if x not in trials_to_keep])
         return self.drop(trials_to_drop)
 
-    def calculate_response_window(self):
-        baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
-        response_idx = (self.time > self.response_win[2]) & (self.time < self.response_win[3])
+    def get_response_window(self):
+        if len(self.response_win) > 2:
+            baseline_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
+            response_idx = (self.time > self.response_win[2]) & (self.time < self.response_win[3])
+        else:
+            baseline_idx = 0
+            response_idx = (self.time > self.response_win[0]) & (self.time < self.response_win[1])
         base = np.nanmean(self.data.loc[:, np.where(baseline_idx)[0]], axis=1) # hacky fix in case the response win is betwene frames, and you end up with 1 less than the proper size
         resp = np.nanmean(self.data.loc[:, np.where(response_idx)[0]], axis=1)
         return resp, base
@@ -58,20 +62,47 @@ class Recording:
             raise IndexError(f"Labels do not have the right number of trials ({self.data.shape[0]})") # trials
         self.labels = _add(input, self.labels)
 
-    def average_over(self, select):
-        # theoretically creating a dataframe?
+
+    def groupby(self, select, baseline_subtract=True):
         if type(select) is not list:
             select = [select]
         df = self.labels[select].copy()
-        resp, base = self.calculate_response_window()
-        df['data'] = resp - base
-        m = (df.groupby([*select])
-            .mean(numeric_only=True)
-            .reset_index())
-        e = (df.groupby([*select])
-            .sem(numeric_only=True)
-            .reset_index())
-        m['error'] = e['data'] # mapping should be preserved
+        resp, base = self.get_response_window()
+        df['data'] = resp # aha!
+
+        if baseline_subtract:
+            print('Baseline subtracting...')
+            df['data'] -= base
+        return df.groupby([*select])
+
+    def average_over(self, select, baseline_subtract=True):
+        # theoretically creating a dataframe?
+        # if type(select) is not list:
+        #     select = [select]
+        # df = self.labels[select].copy()
+        # resp, base = self.get_response_window()
+        # df['data'] = resp # aha!
+
+        # if baseline_subtract:
+        #     print('Baseline subtracting...')
+        #     df['data'] =- base
+        df = self.groupby(select)
+        m = (df.mean(numeric_only=True).reset_index())
+        e = (df.sem(numeric_only=True).reset_index())
+        v = (df.var(numeric_only=True).reset_index())
+
+        # m = (df.groupby([*select])
+        #     .mean(numeric_only=True)
+        #     .reset_index())
+        # e = (df.groupby([*select])
+        #     .sem(numeric_only=True)
+        #     .reset_index())
+        # v = (df.groupby([*select])
+        #     .var(numeric_only=True)
+        #     .reset_index()) 
+
+        m['sem'] = e['data'] # mapping should be preserved
+        m['var'] = v['data'] # same as before, is there a better way?
         return m
 
     def copy(self):
