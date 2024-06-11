@@ -69,9 +69,7 @@ class Recording:
         df = self.labels[select].copy()
         resp, base = self.get_response_window()
         df['data'] = resp # aha!
-
         if baseline_subtract:
-            print('Baseline subtracting...')
             df['data'] -= base
         return df.groupby([*select])
 
