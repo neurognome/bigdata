@@ -1,4 +1,5 @@
 import pandas as pd
+import xarray as xr
 import numpy as np
 import copy
 
@@ -23,8 +24,8 @@ class Recording:
     def __init__(self, data:np.ndarray, response_frames, framerate):
         self.time = np.arange(data.shape[1])/framerate
         self.framerate = framerate;
-        self.data = pd.DataFrame(data)
-        self.labels = pd.DataFrame()
+        self.data = xr.DataArray(data) # now we want this to be full 3d nk, nn ,nt
+        self.labels = pd.DataFrame() # here in the labels, instead of a separate dataframe, these labels should label the xarray
         self.response_win = np.array(response_frames)/framerate
 
     def drop(self, trials_to_drop):
