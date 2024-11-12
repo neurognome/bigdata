@@ -64,14 +64,25 @@ class Recording:
 
 
     def groupby(self, select, baseline_subtract=True):
+        # if type(select) is not list:
+        #     select = [select]
+        # df = self.labels[select].copy()
+        # resp, base = self.get_response_window()
+        # df['data'] = resp # aha!
+        # if baseline_subtract:
+        #     df['data'] -= base
+        df = self.get_trials(select=select, baseline_subtract=baseline_subtract)
+        return df.groupby([*select])
+
+    def get_trials(self, select, baseline_subtract=True):
         if type(select) is not list:
             select = [select]
         df = self.labels[select].copy()
         resp, base = self.get_response_window()
-        df['data'] = resp # aha!
+        df['data'] = resp
         if baseline_subtract:
             df['data'] -= base
-        return df.groupby([*select])
+        return df
 
     def average_over(self, select, baseline_subtract=True):
         # theoretically creating a dataframe?
