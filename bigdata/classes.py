@@ -6,10 +6,14 @@ import copy
 # shared methods 
 def _add(input, df):
     for k, v in input.items():
-        if k in df.keys():
-            df[k] = v
-        else:
-            df = pd.concat([df, v], axis=1)
+        df = df.assign_coords({k: ('trials', v)})
+
+
+    # for k, v in input.items():
+    #     if k in df.keys():
+    #         df[k] = v
+    #     else:
+    #         df = pd.concat([df, v], axis=1)
     return df
 
 def _check_inputs(input):
@@ -24,8 +28,10 @@ class Recording:
     def __init__(self, data:np.ndarray, response_frames, framerate):
         self.time = np.arange(data.shape[1])/framerate
         self.framerate = framerate;
-        self.data = xr.DataArray(data) # now we want this to be full 3d nk, nn ,nt
-        self.labels = pd.DataFrame() # here in the labels, instead of a separate dataframe, these labels should label the xarray
+        self.data = xr.DataArray(data, 
+                                 dims=('trials', 'frames'),
+                                 coords=(np.arange(data.shape[0]), np.arange(data.shape[1])),) # now we want this to be full 3d nk, nn ,nt
+        # self.labels = pd.DataFrame() # here in the labels, instead of a separate dataframe, these labels should label the xarray
         self.response_win = np.array(response_frames)/framerate
 
     def drop(self, trials_to_drop):
@@ -61,7 +67,7 @@ class Recording:
             input = input.iloc[range(self.n_trials), :]
         if input.shape[0] != self.n_trials:
             raise IndexError(f"Labels do not have the right number of trials ({self.data.shape[0]})") # trials
-        self.labels = _add(input, self.labels)
+        self.data = _add(input, self.data)
 
 
     def groupby(self, select, baseline_subtract=True):
