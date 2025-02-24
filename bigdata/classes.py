@@ -136,4 +136,9 @@ class Cell:
 
     def add_output(self, input):
         input = _check_inputs(input)
-        self.outputs = _add(input, self.outputs)
+        for k, v in input.items():
+            if k in self.outputs.keys():
+                self.outputs[k] = v
+            else:
+                self.outputs = pd.concat([self.outputs, v], axis=1)
+        # self.outputs = _add(input, self.outputs)
