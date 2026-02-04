@@ -4,9 +4,12 @@ from bigdata.classes import Cell
 
 def create_cells(s2p:Suite2pData):
     stat = s2p.get_stat_iscell()
+    # offset = s2p.ops[0]['remove_artifacts'][0] # artifacts
     cells = list()
     for ii in range(len(stat)):
-        cells.append(Cell(stat[ii]))
+        # stat[ii]['med'] = stat[ii]['med'][::-1] # adjust offset here
+        # stat[ii]['med'][0] += offset
+        cells.append(Cell(stat[ii])) # is it worh it to adjust the meds here in stat
     return cells
 
 def add_recording(cells, epoch, data, response_win, framerate):
