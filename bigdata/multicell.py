@@ -1,4 +1,4 @@
-from holofun.s2p import Suite2pData
+from preprocessing.s2p import Suite2pData
 import numpy as np
 from bigdata.classes import Cell
 
